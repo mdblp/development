@@ -281,7 +281,7 @@ services:
     environment: *platform-environment
 
   platform-data:
-    image: tidepool/platform-data
+    image: data
     # build:
     #   context: ${TIDEPOOL_DOCKER_PLATFORM_DATA_DIR}
     #   dockerfile: Dockerfile.data
@@ -553,6 +553,18 @@ services:
   #   ports:
   #     - '8081:8081'
   #     - '8082:8082'
+
+  confirm-email:
+    image: mdbl/confirm-email
+    ports:
+      - '9508:9508'
+    environment:
+      PORT: ${MDBL_CONFIRM_PORT}
+      MONGO_USER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/user'
+      DIABELOOP_SECRET: '${MDBL_CONFIRM_SECRET}'
+      CRYPTOGRAPHY: ${MDBL_CONFIRM_CRYPTOGRAPHY}
+      SERVER: ${MDBL_CONFIRM_SERVER}
+
 
 volumes:
   mongo:
