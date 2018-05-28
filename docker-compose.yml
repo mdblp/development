@@ -523,15 +523,40 @@ services:
   #     - '8082:8082'
 
   confirm-email:
-    image: mdbl/confirm-email
+    image: mdblp/confirm-email
     ports:
       - '9508:9508'
     environment:
-      PORT: ${MDBL_CONFIRM_PORT}
+      PORT: '9508'
       MONGO_USER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/user'
-      DIABELOOP_SECRET: '${MDBL_CONFIRM_SECRET}'
-      CRYPTOGRAPHY: ${MDBL_CONFIRM_CRYPTOGRAPHY}
-      SERVER: ${MDBL_CONFIRM_SERVER}
+      DIABELOOP_SECRET: '${MDBLP_CONFIRM_SECRET}'
+      CRYPTOGRAPHY: ${MDBLP_CONFIRM_CRYPTOGRAPHY}
+      SERVER: ${MDBLP_CONFIRM_SERVER}
+
+  portal-api:
+    image: mdblp/portal-api
+    ports:
+      - '9507:9507'
+    environment:
+      PORT: '9507'
+      MONGO_USER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/user'
+      MONGO_GATEKEEPER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/gatekeeper'
+      MONGO_PORTAL_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/portal'
+      MONGO_SEAGULL_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/seagull'
+      DEFAULT_ADMIN_EMAIL: 'admin@portal.com'
+      DEFAULT_ADMIN_PASSWORD: 'password'
+      DEFAULT_ADMIN_USERID: 'portal-admin'
+      SHORELINE_PASSWORD_SALT: '${TIDEPOOL_DOCKER_SHORELINE_SALT}'
+      GATEKEEPER_SECRET_KEY: '${TIDEPOOL_DOCKER_GATEKEEPER_SECRET}'
+      API_HOST: http://${TIDEPOOL_DOCKER_API_HOST}:8009
+
+  portal-front:
+    image: mdblp/portal-front
+    ports:
+      - '3508:3508'
+    environment:
+      PORT: '3508'
+      PORTAL_SERVER: 'http://localhost:9507'
 
 
 volumes:
