@@ -281,7 +281,7 @@ services:
     environment: *platform-environment
 
   platform-data:
-    image: data
+    image: data:pre-dblp
     # build:
     #   context: ${TIDEPOOL_DOCKER_PLATFORM_DATA_DIR}
     #   dockerfile: Dockerfile.data
@@ -484,7 +484,24 @@ services:
               {"type": "pathPrefix", "prefix": "/v1/datasets",                      "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${TIDEPOOL_DOCKER_PLATFORM_DATA_HOST}:9220"}]}},
               {"type": "pathMatch",  "match":  "/v1/data",                                                "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${TIDEPOOL_DOCKER_PLATFORM_DATA_HOST}:9220"}]}},
               {"type": "pathPrefix", "prefix": "/v1/blobs",                         "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${TIDEPOOL_DOCKER_PLATFORM_BLOB_HOST}:9225"}]}},
-              {"type": "pathPrefix", "prefix": "/v1/oauth",                         "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${TIDEPOOL_DOCKER_PLATFORM_AUTH_HOST}:9222"}]}}
+              {"type": "pathPrefix", "prefix": "/v1/oauth",                         "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${TIDEPOOL_DOCKER_PLATFORM_AUTH_HOST}:9222"}]}},
+
+              {"type": "pathMatch", "match": "/autoconf", "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${CONFIRM_EMAIL_HOST}:9508"}]}},
+              {"type": "pathPrefix", "prefix": "/organization", "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PORTAL_HOST}:9507"}]}},
+              {"type": "pathPrefix", "prefix": "/api", "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PORTAL_HOST}:9507"}]}},
+              {
+                "type": "pathPrefix",
+                "prefix": "/mis",
+                "stripPrefix": false,
+                "rule": {
+                  "type": "staticService",
+                  "hosts": [{
+                      "protocol": "http",
+                      "host": "${PORTAL_HOST}:9510"
+                    }
+                  ]
+                }
+              }
             ]
           },
           "https": {
@@ -559,12 +576,47 @@ services:
     ports:
       - '9508:9508'
     environment:
-      PORT: ${MDBL_CONFIRM_PORT}
+      PORT: ${CONFIRM_EMAIL_PORT}
       MONGO_USER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/user'
-      DIABELOOP_SECRET: '${MDBL_CONFIRM_SECRET}'
-      CRYPTOGRAPHY: ${MDBL_CONFIRM_CRYPTOGRAPHY}
-      SERVER: ${MDBL_CONFIRM_SERVER}
+      DIABELOOP_SECRET: '${CONFIRM_EMAIL_SECRET}'
+      CRYPTOGRAPHY: ${CONFIRM_EMAIL_CRYPTOGRAPHY}
+      SERVER: ${CONFIRM_EMAIL_HOST}
 
+  mis-api:
+    image: mis-api
+    ports:
+      - '9510:9510'
+    environment:
+      MONGO_USER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/user'
+      MONGO_GATEKEEPER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/gatekeeper'
+      MONGO_PORTAL_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/portal'
+      MONGO_SEAGULL_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/seagull'
+      MONGO_DATA_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/data'
+      MONGO_MIS_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/mis'
+      TIDEPOOL_API_HOST: 'http://${TIDEPOOL_DOCKER_API_HOST}:8009'
+      MDBLP_API_HOST: 'localhost'
+      MDBLP_API_PORT: '9510'
+      MDBLP_API_LOGLEVEL: 'Info'
+      MDBLP_API_LOGFILE: '../mis.log'
+
+  portal-api:
+    image: portal-api
+    ports:
+      - '9507:9507'
+    environment:
+      MONGO_USER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/user'
+      MONGO_GATEKEEPER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/gatekeeper'
+      MONGO_PORTAL_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/portal'
+      MONGO_SEAGULL_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/seagull'
+      MONGO_DATA_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/data'
+      API_HOST: 'http://localhost:8009'
+      GATEKEEPER_SECRET_KEY: '${TIDEPOOL_DOCKER_GATEKEEPER_SECRET}'
+      HOST: 'localhost'
+      PORT: 9507
+      DEFAULT_ADMIN_EMAIL: 'admin@portal.com'
+      DEFAULT_ADMIN_PASSWORD: 'password'
+      DEFAULT_ADMIN_USERID: 'portal-admin'
+      SHORELINE_PASSWORD_SALT: '${TIDEPOOL_DOCKER_SHORELINE_SALT}'
 
 volumes:
   mongo:
