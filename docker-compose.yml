@@ -6,7 +6,9 @@ services:
     volumes:
       - ${MONGO_VOLUME}:/data/db
     ports:
-      - '27017:27017'
+     - '27017:27017'
+#    command: mongod --auth --config /etc/mongod.conf
+    command: mongod  --config /etc/mongod/mongo.conf
 
   blip:
     image: docker.ci.diabeloop.eu/blip
@@ -26,13 +28,13 @@ services:
     ports:
       - '3000:3000'
     environment:
-      API_HOST: http://${API_HOST}:8009
-      DEV_TOOLS: ${DEV_TOOLS:-true}
-      DISCOVERY_HOST: ${HAKKEN_HOST}:8000
-      NODE_ENV: development
-      PORT: '3000'
-      PUBLISH_HOST: ${HAKKEN_HOST}
-      WEBPACK_DEVTOOL: cheap-module-eval-source-map
+      - API_HOST=${BLIP_API_HOST}
+      - DEV_TOOLS
+      - DISCOVERY_HOST
+      - NODE_ENV
+      - PORT=${BLIP_PORT}
+      - PUBLISH_HOST
+      - WEBPACK_DEVTOOL
 
   gatekeeper:
     image: docker.ci.diabeloop.eu/gatekeeper
@@ -45,15 +47,15 @@ services:
     ports:
       - '${GATEKEEPER_PORT_PREFIX}9123:${GATEKEEPER_PORT_PREFIX}9123'
     environment:
-      DISCOVERY_HOST: ${HAKKEN_HOST}:8000
-      GATEKEEPER_SECRET: '${GATEKEEPER_SECRET}'
-      MONGO_CONNECTION_STRING: mongodb://${MONGO_HOST}/gatekeeper?ssl=${MONGO_TLS}
-      NODE_ENV: development
-      PORT: '${GATEKEEPER_PORT_PREFIX}9123'
-      PUBLISH_HOST: ${HAKKEN_HOST}
-      SERVER_SECRET: '${SERVER_SECRET}'
-      SERVICE_NAME: gatekeeper
-      USER_API_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${SHORELINE_HOST}:9107"}]}'
+      - DISCOVERY_HOST
+      - GATEKEEPER_SECRET
+      - MONGO_CONNECTION_STRING=${GATEKEEPER_MONGO_CONNECTION_STRING}
+      - NODE_ENV
+      - PORT=${GATEKEEPER_PORT}
+      - PUBLISH_HOST
+      - SERVER_SECRET
+      - SERVICE_NAME="${GATEKEEPER_SERVICE_NAME}"
+      - USER_API_SERVICE
 
   hakken:
     image: docker.ci.diabeloop.eu/hakken
@@ -64,12 +66,12 @@ services:
     ports:
       - '${HAKKEN_PORT_PREFIX}8000:${HAKKEN_PORT_PREFIX}8000'
     environment:
-      ANNOUNCE_HOST: ${HAKKEN_HOST}
-      DISCOVERY_HEARTBEAT_INTERVAL: '10000'
-      DISCOVERY_HOST: ${HAKKEN_HOST}:8000
-      LOG_HEARTBEATS: 'false'
-      NODE_ENV: development
-      PORT: '${HAKKEN_PORT_PREFIX}8000'
+      - ANNOUNCE_HOST
+      - DISCOVERY_HEARTBEAT_INTERVAL
+      - DISCOVERY_HOST
+      - LOG_HEARTBEATS
+      - NODE_ENV
+      - PORT=${HAKKEN_PORT}
 
   highwater:
     image: docker.ci.diabeloop.eu/highwater
@@ -82,16 +84,16 @@ services:
     ports:
       - '${HIGHWATER_PORT_PREFIX}9191:${HIGHWATER_PORT_PREFIX}9191'
     environment:
-      DISCOVERY_HOST: ${HAKKEN_HOST}:8000
-      METRICS_APIKEY: ''
-      METRICS_UCSF_APIKEY: ''
-      NODE_ENV: development
-      PORT: '${HIGHWATER_PORT_PREFIX}9191'
-      PUBLISH_HOST: ${HAKKEN_HOST}
-      SALT_DEPLOY: '${HIGHWATER_SALT}'
-      SERVER_SECRET: '${SERVER_SECRET}'
-      SERVICE_NAME: highwater
-      USER_API_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${SHORELINE_HOST}:9107"}]}'
+      - DISCOVERY_HOST
+      - METRICS_APIKEY
+      - METRICS_UCSF_APIKEY
+      - NODE_ENV
+      - PORT=${HIGHWATER_PORT}
+      - PUBLISH_HOST
+      - SALT_DEPLOY="${HIGHWATER_SALT}"
+      - SERVER_SECRET
+      - SERVICE_NAME="${HIGHWATER_SERVICE_NAME}"
+      - USER_API_SERVICE
 
   hydrophone:
     image: docker.ci.diabeloop.eu/hydrophone
@@ -106,48 +108,8 @@ services:
     ports:
       - '${HYDROPHONE_PORT_PREFIX}9157:${HYDROPHONE_PORT_PREFIX}9157'
     environment:
-      TIDEPOOL_HYDROPHONE_ENV: |
-        {
-            "gatekeeper": {"serviceSpec": {"type": "static", "hosts": ["http://${GATEKEEPER_HOST}:9123"]}},
-            "hakken": {"host": "${HAKKEN_HOST}:8000"},
-            "highwater": {
-                "metricsSource": "hydrophone",
-                "metricsVersion": "v0.0.1",
-                "name": "highwater",
-                "serviceSpec": {"type": "static", "hosts": ["http://${HIGHWATER_HOST}:9191"]}
-            },
-            "seagull": {"serviceSpec": {"type": "static", "hosts": ["http://${SEAGULL_HOST}:9120"]}},
-            "shoreline": {
-                "name": "hydrophone",
-                "secret": "${SERVER_SECRET}",
-                "serviceSpec": {"type": "static", "hosts": ["http://${SHORELINE_HOST}:9107"]},
-                "tokenRefreshInterval": "1h"
-            }
-        }
-      TIDEPOOL_HYDROPHONE_SERVICE: |
-        {
-            "hydrophone": {
-                "assetUrl": "https://s3-us-west-2.amazonaws.com/tidepool-dev-asset",
-                "serverSecret": "${SERVER_SECRET}",
-                "webUrl": "http://${API_HOST}:3000"
-            },
-            "mongo": {
-                "connectionString": "mongodb://${MONGO_HOST}/confirm?ssl=${MONGO_TLS}"
-            },
-            "service": {
-                "certFile": "config/cert.pem",
-                "host": "localhost:${HYDROPHONE_PORT_PREFIX}9157",
-                "keyFile": "config/key.pem",
-                "protocol": "http",
-                "service": "hydrophone"
-            },
-            "sesEmail": {
-                "accessKey": "${HYDROPHONE_AWS_ACCESS_KEY_ID}",
-                "fromAddress": "${HYDROPHONE_FROM_ADDRESS}",
-                "secretKey": "${HYDROPHONE_AWS_SECRET_ACCESS_KEY}",
-                "serverEndpoint": "https://email.us-west-2.amazonaws.com"
-            }
-        }
+      - TIDEPOOL_HYDROPHONE_ENV
+      - TIDEPOOL_HYDROPHONE_SERVICE
 
   jellyfish:
     image: docker.ci.diabeloop.eu/jellyfish
@@ -160,20 +122,20 @@ services:
     ports:
       - '${JELLYFISH_PORT_PREFIX}9122:${JELLYFISH_PORT_PREFIX}9122'
     environment:
-      DISCOVERY_HOST: ${HAKKEN_HOST}:8000
-      GATEKEEPER_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${GATEKEEPER_HOST}:9123"}]}'
-      MINIMUM_UPLOADER_VERSION: '0.251.0'
-      MONGO_CONNECTION_STRING: mongodb://${MONGO_HOST}/data?ssl=${MONGO_TLS}
-      NODE_ENV: development
-      PORT: '${JELLYFISH_PORT_PREFIX}9122'
-      PUBLISH_HOST: ${HAKKEN_HOST}
-      SALT_DEPLOY: '${JELLYFISH_SALT}'
-      SCHEMA_VERSION: '3'
-      SEAGULL_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${SEAGULL_HOST}:9120"}]}'
-      SERVER_SECRET: '${SERVER_SECRET}'
-      SERVE_STATIC: dist
-      SERVICE_NAME: jellyfish
-      USER_API_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${SHORELINE_HOST}:9107"}]}'
+      - DISCOVERY_HOST
+      - GATEKEEPER_SERVICE
+      - MINIMUM_UPLOADER_VERSION
+      - MONGO_CONNECTION_STRING=${JELLYFISH_MONGO_CONNECTION_STRING}
+      - NODE_ENV
+      - PORT=${JELLYFISH_PORT}
+      - PUBLISH_HOST
+      - SALT_DEPLOY="${JELLYFISH_SALT}"
+      - SCHEMA_VERSION
+      - SEAGULL_SERVICE
+      - SERVER_SECRET
+      - SERVE_STATIC
+      - SERVICE_NAME="${JELLYFISH_SERVICE_NAME}"
+      - USER_API_SERVICE
 
   message-api:
     image: docker.ci.diabeloop.eu/message-api
@@ -186,18 +148,18 @@ services:
     ports:
       - '${MESSAGE_API_PORT_PREFIX}9119:${MESSAGE_API_PORT_PREFIX}9119'
     environment:
-      DISCOVERY_HOST: ${HAKKEN_HOST}:8000
-      GATEKEEPER_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${GATEKEEPER_HOST}:9123"}]}'
-      METRICS_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${HIGHWATER_HOST}:9191"}]}'
-      MONGO_CONNECTION_STRING: mongodb://${MONGO_HOST}/messages?ssl=${MONGO_TLS}
-      NODE_ENV: development
-      PORT: '${MESSAGE_API_PORT_PREFIX}9119'
-      PUBLISH_HOST: ${HAKKEN_HOST}
-      SEAGULL_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${SEAGULL_HOST}:9120"}]}'
-      SERVER_NAME: message-api
-      SERVER_SECRET: '${SERVER_SECRET}'
-      SERVICE_NAME: message-api
-      USER_API_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${SHORELINE_HOST}:9107"}]}'
+      - DISCOVERY_HOST
+      - GATEKEEPER_SERVICE
+      - METRICS_SERVICE
+      - MONGO_CONNECTION_STRING=${MESSAGE_API_MONGO_CONNECTION_STRING}
+      - NODE_ENV
+      - PORT=${MESSAGE_API_PORT}
+      - PUBLISH_HOST
+      - SEAGULL_SERVICE
+      - SERVER_NAME
+      - SERVER_SECRET
+      - SERVICE_NAME="${MESSAGE_API_SERVICE_NAME}"
+      - USER_API_SERVICE
 
   platform-auth:
     image: docker.ci.diabeloop.eu/platform-auth
@@ -211,60 +173,94 @@ services:
     ports:
       - '${PLATFORM_AUTH_PORT_PREFIX}9222:${PLATFORM_AUTH_PORT_PREFIX}9222'
     environment: &platform-environment
-      TIDEPOOL_ENV: local
-      TIDEPOOL_LOGGER_LEVEL: debug
-      TIDEPOOL_STORE_ADDRESSES: ${MONGO_HOST}
-      TIDEPOOL_STORE_DATABASE: tidepool
-      TIDEPOOL_STORE_TLS: ${MONGO_TLS}
-      TIDEPOOL_SERVER_TLS: 'false'
-      TIDEPOOL_CONFIRMATION_STORE_DATABASE: confirm
-      TIDEPOOL_TASK_QUEUE_WORKERS: 5
-      TIDEPOOL_TASK_QUEUE_DELAY: 5
-      TIDEPOOL_DEPRECATED_DATA_STORE_DATABASE: data
-      TIDEPOOL_MESSAGE_STORE_DATABASE: messages
-      TIDEPOOL_PERMISSION_STORE_DATABASE: gatekeeper
-      TIDEPOOL_PERMISSION_STORE_SECRET: '${GATEKEEPER_SECRET}'
-      TIDEPOOL_PROFILE_STORE_DATABASE: seagull
-      TIDEPOOL_SESSION_STORE_DATABASE: user
-      TIDEPOOL_SYNC_TASK_STORE_DATABASE: data
-      TIDEPOOL_USER_STORE_DATABASE: user
-      TIDEPOOL_USER_STORE_PASSWORD_SALT: '${SHORELINE_SALT}'
-      TIDEPOOL_AUTH_CLIENT_ADDRESS: http://${PLATFORM_AUTH_HOST}:9222
-      TIDEPOOL_BLOB_CLIENT_ADDRESS: http://${PLATFORM_BLOB_HOST}:9225
-      TIDEPOOL_DATA_CLIENT_ADDRESS: http://${PLATFORM_DATA_HOST}:9220
-      TIDEPOOL_DATA_SOURCE_CLIENT_ADDRESS: http://${PLATFORM_DATA_HOST}:9220
-      TIDEPOOL_METRIC_CLIENT_ADDRESS: http://${STYX_HOST}:8009
-      TIDEPOOL_NOTIFICATION_CLIENT_ADDRESS: http://${PLATFORM_NOTIFICATION_HOST}:9223
-      TIDEPOOL_PERMISSION_CLIENT_ADDRESS: http://${GATEKEEPER_HOST}:9123
-      TIDEPOOL_TASK_CLIENT_ADDRESS: http://${PLATFORM_TASK_HOST}:9224
-      TIDEPOOL_USER_CLIENT_ADDRESS: http://${STYX_HOST}:8009
-      TIDEPOOL_AUTH_CLIENT_EXTERNAL_ADDRESS: http://${STYX_HOST}:8009
-      TIDEPOOL_AUTH_CLIENT_EXTERNAL_SERVER_SESSION_TOKEN_SECRET: '${SERVER_SECRET}'
-      TIDEPOOL_AUTH_SERVICE_SERVER_ADDRESS: :${PLATFORM_AUTH_PORT_PREFIX}9222
-      TIDEPOOL_BLOB_SERVICE_SERVER_ADDRESS: :${PLATFORM_BLOB_PORT_PREFIX}9225
-      TIDEPOOL_DATA_SERVICE_SERVER_ADDRESS: :${PLATFORM_DATA_PORT_PREFIX}9220
-      TIDEPOOL_NOTIFICATION_SERVICE_SERVER_ADDRESS: :${PLATFORM_NOTIFICATION_PORT_PREFIX}9223
-      TIDEPOOL_TASK_SERVICE_SERVER_ADDRESS: :${PLATFORM_TASK_PORT_PREFIX}9224
-      TIDEPOOL_USER_SERVICE_SERVER_ADDRESS: :${PLATFORM_USER_PORT_PREFIX}9221
-      TIDEPOOL_AUTH_SERVICE_DOMAIN: ${API_HOST}
-      TIDEPOOL_BLOB_SERVICE_UNSTRUCTURED_STORE_TYPE: ${PLATFORM_BLOB_SERVICE_UNSTRUCTURED_STORE_TYPE}
-      TIDEPOOL_BLOB_SERVICE_UNSTRUCTURED_STORE_FILE_DIRECTORY: ${PLATFORM_BLOB_SERVICE_UNSTRUCTURED_STORE_FILE_DIRECTORY}
-      TIDEPOOL_BLOB_SERVICE_UNSTRUCTURED_STORE_S3_BUCKET: ${PLATFORM_BLOB_SERVICE_UNSTRUCTURED_STORE_S3_BUCKET}
-      TIDEPOOL_BLOB_SERVICE_UNSTRUCTURED_STORE_S3_PREFIX: ${PLATFORM_BLOB_SERVICE_UNSTRUCTURED_STORE_S3_PREFIX}
-      TIDEPOOL_AUTH_SERVICE_SECRET: '${PLATFORM_AUTH_SERVICE_SECRET}'
-      TIDEPOOL_BLOB_SERVICE_SECRET: '${PLATFORM_BLOB_SERVICE_SECRET}'
-      TIDEPOOL_DATA_SERVICE_SECRET: '${PLATFORM_DATA_SERVICE_SECRET}'
-      TIDEPOOL_NOTIFICATION_SERVICE_SECRET: '${PLATFORM_NOTIFICATION_SERVICE_SECRET}'
-      TIDEPOOL_TASK_SERVICE_SECRET: '${PLATFORM_TASK_SERVICE_SECRET}'
-      TIDEPOOL_USER_SERVICE_SECRET: '${PLATFORM_USER_SERVICE_SECRET}'
-      TIDEPOOL_DEXCOM_CLIENT_ADDRESS: https://api.dexcom.com
-      TIDEPOOL_SERVICE_PROVIDER_DEXCOM_CLIENT_ID: '${SERVICE_PROVIDER_DEXCOM_CLIENT_ID}'
-      TIDEPOOL_SERVICE_PROVIDER_DEXCOM_CLIENT_SECRET: '${SERVICE_PROVIDER_DEXCOM_CLIENT_SECRET}'
-      TIDEPOOL_SERVICE_PROVIDER_DEXCOM_AUTHORIZE_URL: https://api.dexcom.com/v1/oauth2/login
-      TIDEPOOL_SERVICE_PROVIDER_DEXCOM_TOKEN_URL: https://api.dexcom.com/v1/oauth2/token
-      TIDEPOOL_SERVICE_PROVIDER_DEXCOM_REDIRECT_URL: http://${API_HOST}:8009/v1/oauth/dexcom/redirect
-      TIDEPOOL_SERVICE_PROVIDER_DEXCOM_SCOPES: offline_access
-      TIDEPOOL_SERVICE_PROVIDER_DEXCOM_STATE_SALT: '${SERVICE_PROVIDER_DEXCOM_STATE_SALT}'
+      - TIDEPOOL_ENV
+      - TIDEPOOL_LOGGER_LEVEL
+      - TIDEPOOL_STORE_ADDRESSES
+      - TIDEPOOL_STORE_DATABASE
+      - TIDEPOOL_STORE_USERNAME
+      - TIDEPOOL_STORE_PASSWORD
+      - TIDEPOOL_STORE_SOURCE
+      ##
+      - TIDEPOOL_AUTH_STORE_USERNAME
+      - TIDEPOOL_AUTH_STORE_PASSWORD
+      - TIDEPOOL_AUTH_STORE_SOURCE
+
+      - TIDEPOOL_PROFILE_STORE_USERNAME
+      - TIDEPOOL_PROFILE_STORE_PASSWORD
+      - TIDEPOOL_PROFILE_STORE_SOURCE
+
+      - TIDEPOOL_MESSAGE_STORE_USERNAME
+      - TIDEPOOL_MESSAGE_STORE_PASSWORD
+      - TIDEPOOL_MESSAGE_STORE_SOURCE
+
+      - TIDEPOOL_PERMISSION_STORE_USERNAME
+      - TIDEPOOL_PERMISSION_STORE_PASSWORD
+      - TIDEPOOL_PERMISSION_STORE_SOURCE
+
+      - TIDEPOOL_SESSION_STORE_USERNAME
+      - TIDEPOOL_SESSION_STORE_PASSWORD
+      - TIDEPOOL_SESSION_STORE_SOURCE
+
+      - TIDEPOOL_BLOB_CLIENT_ADDRESS
+      - TIDEPOOL_BLOB_SERVICE_SERVER_ADDRESS
+      - TIDEPOOL_BLOB_SERVICE_UNSTRUCTURED_STORE_TYPE
+      - TIDEPOOL_BLOB_SERVICE_UNSTRUCTURED_STORE_FILE_DIRECTORY
+      - TIDEPOOL_BLOB_SERVICE_UNSTRUCTURED_STORE_S3_BUCKET
+      - TIDEPOOL_BLOB_SERVICE_UNSTRUCTURED_STORE_S3_PREFIX
+      - TIDEPOOL_BLOB_SERVICE_SECRET
+
+
+      - TIDEPOOL_CONFIRMATION_STORE_USERNAME
+      - TIDEPOOL_CONFIRMATION_STORE_PASSWORD
+      - TIDEPOOL_CONFIRMATION_STORE_SOURCE
+
+      # DEPRECATED_DATA_STORE
+      - TIDEPOOL_DEPRECATED_DATA_STORE_STORE_USERNAME
+      - TIDEPOOL_DEPRECATED_DATA_STORE_STORE_PASSWORD
+      - TIDEPOOL_DEPRECATED_DATA_STORE_STORE_SOURCE
+
+      - TIDEPOOL_STORE_TLS
+      - TIDEPOOL_STORE_MECHANISM
+      - TIDEPOOL_SERVER_TLS
+      - TIDEPOOL_CONFIRMATION_STORE_DATABASE
+      - TIDEPOOL_TASK_QUEUE_WORKERS
+      - TIDEPOOL_TASK_QUEUE_DELAY
+      - TIDEPOOL_DEPRECATED_DATA_STORE_DATABASE
+      - TIDEPOOL_MESSAGE_STORE_DATABASE
+      - TIDEPOOL_PERMISSION_STORE_DATABASE
+      - TIDEPOOL_PERMISSION_STORE_SECRET
+      - TIDEPOOL_PROFILE_STORE_DATABASE
+      - TIDEPOOL_SESSION_STORE_DATABASE
+      - TIDEPOOL_SYNC_TASK_STORE_DATABASE
+      - TIDEPOOL_USER_STORE_DATABASE
+      - TIDEPOOL_USER_STORE_PASSWORD_SALT
+      - TIDEPOOL_AUTH_CLIENT_ADDRESS
+      - TIDEPOOL_DATA_CLIENT_ADDRESS
+      - TIDEPOOL_METRIC_CLIENT_ADDRESS
+      - TIDEPOOL_NOTIFICATION_CLIENT_ADDRESS
+      - TIDEPOOL_TASK_CLIENT_ADDRESS
+      - TIDEPOOL_USER_CLIENT_ADDRESS
+      - TIDEPOOL_AUTH_CLIENT_EXTERNAL_ADDRESS
+      - TIDEPOOL_AUTH_CLIENT_EXTERNAL_SERVER_SESSION_TOKEN_SECRET
+      - TIDEPOOL_AUTH_SERVICE_SERVER_ADDRESS
+      - TIDEPOOL_DATA_SERVICE_SERVER_ADDRESS
+      - TIDEPOOL_NOTIFICATION_SERVICE_SERVER_ADDRESS
+      - TIDEPOOL_TASK_SERVICE_SERVER_ADDRESS
+      - TIDEPOOL_USER_SERVICE_SERVER_ADDRESS
+      - TIDEPOOL_AUTH_SERVICE_DOMAIN
+      - TIDEPOOL_AUTH_SERVICE_SECRET
+      - TIDEPOOL_DATA_SERVICE_SECRET
+      - TIDEPOOL_NOTIFICATION_SERVICE_SECRET
+      - TIDEPOOL_TASK_SERVICE_SECRET
+      - TIDEPOOL_USER_SERVICE_SECRET
+      - TIDEPOOL_DEXCOM_CLIENT_ADDRESS
+      - TIDEPOOL_SERVICE_PROVIDER_DEXCOM_CLIENT_ID
+      - TIDEPOOL_SERVICE_PROVIDER_DEXCOM_CLIENT_SECRET
+      - TIDEPOOL_SERVICE_PROVIDER_DEXCOM_AUTHORIZE_URL
+      - TIDEPOOL_SERVICE_PROVIDER_DEXCOM_TOKEN_URL
+      - TIDEPOOL_SERVICE_PROVIDER_DEXCOM_REDIRECT_URL
+      - TIDEPOOL_SERVICE_PROVIDER_DEXCOM_SCOPES
+      - TIDEPOOL_SERVICE_PROVIDER_DEXCOM_STATE_SALT
 
   platform-blob:
     image: docker.ci.diabeloop.eu/platform-blob
@@ -365,17 +361,17 @@ services:
     ports:
       - '${SEAGULL_PORT_PREFIX}9120:${SEAGULL_PORT_PREFIX}9120'
     environment:
-      DISCOVERY_HOST: ${HAKKEN_HOST}:8000
-      GATEKEEPER_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${GATEKEEPER_HOST}:9123"}]}'
-      METRICS_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${HIGHWATER_HOST}:9191"}]}'
-      MONGO_CONNECTION_STRING: mongodb://${MONGO_HOST}/seagull?ssl=${MONGO_TLS}
-      NODE_ENV: development
-      PORT: '${SEAGULL_PORT_PREFIX}9120'
-      PUBLISH_HOST: ${HAKKEN_HOST}
-      SALT_DEPLOY: '${SEAGULL_SALT}'
-      SERVER_SECRET: '${SERVER_SECRET}'
-      SERVICE_NAME: seagull
-      USER_API_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${SHORELINE_HOST}:9107"}]}'
+      - DISCOVERY_HOST
+      - GATEKEEPER_SERVICE
+      - METRICS_SERVICE
+      - MONGO_CONNECTION_STRING=${SEAGULL_MONGO_CONNECTION_STRING}
+      - NODE_ENV
+      - PORT=${SEAGULL_PORT}
+      - PUBLISH_HOST
+      - SALT_DEPLOY="${SEAGULL_SALT}"
+      - SERVER_SECRET
+      - SERVICE_NAME="${SEAGULL_SERVICE_NAME}"
+      - USER_API_SERVICE
 
   shoreline:
     image: docker.ci.diabeloop.eu/shoreline
@@ -390,43 +386,8 @@ services:
     ports:
       - '${SHORELINE_PORT_PREFIX}9107:${SHORELINE_PORT_PREFIX}9107'
     environment:
-      TIDEPOOL_SHORELINE_ENV: |
-        {
-            "gatekeeper": {"serviceSpec": {"type": "static", "hosts": ["http://${GATEKEEPER_HOST}:9123"]}},
-            "hakken": {"host": "${HAKKEN_HOST}:8000"},
-            "highwater": {
-                "metricsSource": "shoreline",
-                "metricsVersion": "v0.0.1",
-                "name": "highwater",
-                "serviceSpec": {"type": "static", "hosts": ["http://${HIGHWATER_HOST}:9191"]}
-            }
-        }
-      TIDEPOOL_SHORELINE_SERVICE: |
-        {
-            "mongo": {
-                "connectionString": "mongodb://${MONGO_HOST}/user?ssl=${MONGO_TLS}"
-            },
-            "oauth2": {
-                "expireDays": 14
-            },
-            "service": {
-                "certFile": "config/cert.pem",
-                "host": "localhost:${SHORELINE_PORT_PREFIX}9107",
-                "keyFile": "config/key.pem",
-                "protocol": "http",
-                "service": "shoreline"
-            },
-            "user": {
-                "apiSecret": "${SHORELINE_API_SECRET}",
-                "clinicDemoUserId": "",
-                "longTermDaysDuration": 30,
-                "longTermKey": "${SHORELINE_LONG_TERM_KEY}",
-                "salt": "${SHORELINE_SALT}",
-                "serverSecret": "${SERVER_SECRET}",
-                "tokenDurationSecs": 2592000,
-                "verificationSecret": "${SHORELINE_VERIFICATION_SECRET}"
-            }
-        }
+      - TIDEPOOL_SHORELINE_ENV
+      - TIDEPOOL_SHORELINE_SERVICE
 
   styx:
     image: docker.ci.diabeloop.eu/styx
@@ -439,77 +400,12 @@ services:
     ports:
       - '${STYX_PORT_PREFIX}8009-${STYX_PORT_PREFIX}8010:${STYX_PORT_PREFIX}8009-${STYX_PORT_PREFIX}8010'
     environment:
-      DISCOVERY: '{"host": "${HAKKEN_HOST}:8000"}'
-      HTTPS_CONFIG: '{"cert": "${STYX_TLS_CERTIFICATE}", "key": "${STYX_TLS_PRIVATE_KEY}"}'
-      HTTPS_PORT: '${STYX_PORT_PREFIX}8010'
-      HTTP_PORT: '${STYX_PORT_PREFIX}8009'
-      NODE_ENV: development
-      RULES: |
-        {
-          "http": {
-            "*": [
-              {
-                "type": "cors",
-                "headers": {
-                  "access-control-allow-origin": "*",
-                  "access-control-allow-headers": "authorization, content-type, x-tidepool-session-token, x-tidepool-trace-request, x-tidepool-trace-session",
-                  "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE",
-                  "access-control-expose-headers": "x-tidepool-session-token, x-tidepool-trace-request, x-tidepool-trace-session",
-                  "access-control-max-age": 0
-                }
-              },
-              {"type": "pathPrefix", "prefix": "/access",                           "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${GATEKEEPER_HOST}:9123"}]}},
-              {"type": "pathPrefix", "prefix": "/auth",                                                   "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${SHORELINE_HOST}:9107"}]}},
-              {"type": "pathPrefix", "prefix": "/confirm",                                                "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${HYDROPHONE_HOST}:9157"}]}},
-              {"type": "pathPrefix", "prefix": "/data/",                                                  "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${TIDE_WHISPERER_HOST}:9127"}]}},
-              {"type": "pathPrefix", "prefix": "/dataservices",                                           "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_DATA_HOST}:9220"}]}},
-              {"type": "pathPrefix", "prefix": "/message",                                                "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${MESSAGE_API_HOST}:9119"}]}},
-              {"type": "pathPrefix", "prefix": "/metadata",                                               "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${SEAGULL_HOST}:9120"}]}},
-              {"type": "pathPrefix", "prefix": "/metrics",                                                "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${HIGHWATER_HOST}:9191"}]}},
-              {"type": "pathPrefix", "prefix": "/userservices",                                           "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_USER_HOST}:9221"}]}},
-              {"type": "pathMatch",  "match":  "/v1/users/[^/]+/restricted_tokens",                       "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_AUTH_HOST}:9222"}]}},
-              {"type": "pathMatch",  "match":  "/v1/users/[^/]+/provider_sessions",                       "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_AUTH_HOST}:9222"}]}},
-              {"type": "pathMatch",  "match":  "/v1/users/[^/]+/data_sources",                            "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_DATA_HOST}:9220"}]}},
-              {"type": "pathMatch",  "match":  "/v1/users/[^/]+/data_sets",                               "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_DATA_HOST}:9220"}]}},
-              {"type": "pathMatch",  "match":  "/v1/users/[^/]+/datasets",                                "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_DATA_HOST}:9220"}]}},
-              {"type": "pathMatch",  "match":  "/v1/users/[^/]+/data",                                    "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_DATA_HOST}:9220"}]}},
-              {"type": "pathMatch",  "match":  "/v1/users/[^/]+/blobs",                                   "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_BLOB_HOST}:9225"}]}},
-              {"type": "pathPrefix", "prefix": "/v1/users",                         "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_USER_HOST}:9221"}]}},
-              {"type": "pathPrefix", "prefix": "/v1/time",                          "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_DATA_HOST}:9220"}]}},
-              {"type": "pathPrefix", "prefix": "/v1/tasks",                         "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_TASK_HOST}:9224"}]}},
-              {"type": "pathPrefix", "prefix": "/v1/restricted_tokens",             "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_AUTH_HOST}:9222"}]}},
-              {"type": "pathPrefix", "prefix": "/v1/provider_sessions",             "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_AUTH_HOST}:9222"}]}},
-              {"type": "pathPrefix", "prefix": "/v1/data_sources",                  "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_DATA_HOST}:9220"}]}},
-              {"type": "pathPrefix", "prefix": "/v1/data_sets",                     "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_DATA_HOST}:9220"}]}},
-              {"type": "pathPrefix", "prefix": "/v1/datasets",                      "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_DATA_HOST}:9220"}]}},
-              {"type": "pathMatch",  "match":  "/v1/data",                                                "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_DATA_HOST}:9220"}]}},
-              {"type": "pathPrefix", "prefix": "/v1/blobs",                         "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_BLOB_HOST}:9225"}]}},
-              {"type": "pathPrefix", "prefix": "/v1/oauth",                         "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PLATFORM_AUTH_HOST}:9222"}]}},
-
-              {"type": "pathMatch", "match": "/autoconf", "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${CONFIRM_EMAIL_HOST}:9508"}]}},
-              {"type": "pathPrefix", "prefix": "/organization", "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PORTAL_HOST}:9507"}]}},
-              {"type": "pathPrefix", "prefix": "/api", "stripPrefix": false, "rule": {"type": "staticService", "hosts": [{"protocol": "http", "host": "${PORTAL_HOST}:9507"}]}},
-              {
-                "type": "pathPrefix",
-                "prefix": "/mis",
-                "stripPrefix": false,
-                "rule": {
-                  "type": "staticService",
-                  "hosts": [{
-                      "protocol": "http",
-                      "host": "${PORTAL_HOST}:9510"
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          "https": {
-            "*": [
-              {"type": "redirect", "host": "http://${STYX_HOST}:8009"}
-            ]
-          }
-        }
+      - DISCOVERY
+      - HTTPS_CONFIG
+      - HTTPS_PORT
+      - HTTP_PORT
+      - NODE_ENV
+      - RULES   
 
   tide-whisperer:
     image: docker.ci.diabeloop.eu/tide-whisperer
@@ -524,40 +420,8 @@ services:
     ports:
       - '${TIDE_WHISPERER_PORT_PREFIX}9127:${TIDE_WHISPERER_PORT_PREFIX}9127'
     environment:
-      TIDEPOOL_TIDE_WHISPERER_ENV: |
-        {
-            "auth": {
-              "address": "http://${PLATFORM_AUTH_HOST}:9222",
-              "serviceSecret": "${PLATFORM_AUTH_SERVICE_SECRET}",
-              "userAgent": "Tidepool-TideWhisperer"
-            },
-            "gatekeeper": {"serviceSpec": {"type": "static", "hosts": ["http://${GATEKEEPER_HOST}:9123"]}},
-            "hakken": {"host": "${HAKKEN_HOST}:8000"},
-            "seagull": {"serviceSpec": {"type": "static", "hosts": ["http://${SEAGULL_HOST}:9120"]}},
-            "shoreline": {
-                "name": "tide-whisperer",
-                "secret": "${SERVER_SECRET}",
-                "serviceSpec": {"type": "static", "hosts": ["http://${SHORELINE_HOST}:9107"]},
-                "tokenRefreshInterval": "1h"
-            }
-        }
-      TIDEPOOL_TIDE_WHISPERER_SERVICE: |
-        {
-            "mongo": {
-                "connectionString": "mongodb://${MONGO_HOST}/data?ssl=${MONGO_TLS}"
-            },
-            "schemaVersion": {
-                "maximum": 99,
-                "minimum": 1
-            },
-            "service": {
-                "certFile": "config/cert.pem",
-                "host": "localhost:${TIDE_WHISPERER_PORT_PREFIX}9127",
-                "keyFile": "config/key.pem",
-                "protocol": "http",
-                "service": "tide-whisperer"
-            }
-        }
+      - TIDEPOOL_TIDE_WHISPERER_ENV
+      - TIDEPOOL_TIDE_WHISPERER_SERVICE
 
   # viz:
   #   image: tidepool/viz
@@ -566,7 +430,7 @@ services:
   #     - /app/node_modules
   #     - viz-dist:/app/dist
   #   environment:
-  #     NODE_ENV: development
+  #     - NODE_ENV
   #   ports:
   #     - '8081:8081'
   #     - '8082:8082'
