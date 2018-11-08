@@ -2,14 +2,14 @@ version: '3.4'
 
 services:
   mongo:
-    image: mongo:3.2
+    image: docker.ci.diabeloop.eu/mongo-yourloops:3.6
     volumes:
       - ${MONGO_VOLUME}:/data/db
     ports:
       - '27017:27017'
 
   blip:
-    image: tidepool/blip
+    image: docker.ci.diabeloop.eu/blip
     depends_on:
       - hakken
     # build: ${BLIP_DIR}
@@ -35,7 +35,7 @@ services:
       WEBPACK_DEVTOOL: cheap-module-eval-source-map
 
   gatekeeper:
-    image: tidepool/gatekeeper
+    image: docker.ci.diabeloop.eu/gatekeeper
     depends_on:
       - hakken
     # build: ${GATEKEEPER_DIR}
@@ -56,7 +56,7 @@ services:
       USER_API_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${SHORELINE_HOST}:9107"}]}'
 
   hakken:
-    image: tidepool/hakken
+    image: docker.ci.diabeloop.eu/hakken
     # build: ${HAKKEN_DIR}
     # volumes:
     #   - ${HAKKEN_DIR}:/app:cached
@@ -72,7 +72,7 @@ services:
       PORT: '${HAKKEN_PORT_PREFIX}8000'
 
   highwater:
-    image: tidepool/highwater
+    image: docker.ci.diabeloop.eu/highwater
     depends_on:
       - hakken
     # build: ${HIGHWATER_DIR}
@@ -94,7 +94,7 @@ services:
       USER_API_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${SHORELINE_HOST}:9107"}]}'
 
   hydrophone:
-    image: tidepool/hydrophone
+    image: docker.ci.diabeloop.eu/hydrophone
     depends_on:
       - hakken
     # build:
@@ -150,7 +150,7 @@ services:
         }
 
   jellyfish:
-    image: tidepool/jellyfish
+    image: docker.ci.diabeloop.eu/jellyfish
     depends_on:
       - hakken
     # build: ${JELLYFISH_DIR}
@@ -176,7 +176,7 @@ services:
       USER_API_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${SHORELINE_HOST}:9107"}]}'
 
   message-api:
-    image: tidepool/message-api
+    image: docker.ci.diabeloop.eu/message-api
     depends_on:
       - hakken
     # build: ${MESSAGE_API_DIR}
@@ -200,7 +200,7 @@ services:
       USER_API_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${SHORELINE_HOST}:9107"}]}'
 
   platform-auth:
-    image: tidepool/platform-auth
+    image: docker.ci.diabeloop.eu/platform-auth
     # build:
     #   context: ${PLATFORM_AUTH_DIR}
     #   dockerfile: Dockerfile.auth
@@ -267,7 +267,7 @@ services:
       TIDEPOOL_SERVICE_PROVIDER_DEXCOM_STATE_SALT: '${SERVICE_PROVIDER_DEXCOM_STATE_SALT}'
 
   platform-blob:
-    image: tidepool/platform-blob
+    image: docker.ci.diabeloop.eu/platform-blob
     # build:
     #   context: ${PLATFORM_BLOB_DIR}
     #   dockerfile: Dockerfile.blob
@@ -281,7 +281,7 @@ services:
     environment: *platform-environment
 
   platform-data:
-    image: data:pre-dblp
+    image: docker.ci.diabeloop.eu/platform-data
     # build:
     #   context: ${PLATFORM_DATA_DIR}
     #   dockerfile: Dockerfile.data
@@ -294,7 +294,7 @@ services:
     environment: *platform-environment
 
   platform-migrations:
-    image: tidepool/platform-migrations
+    image: docker.ci.diabeloop.eu/platform-migrations
     # build:
     #   context: ${PLATFORM_MIGRATIONS_DIR}
     #   dockerfile: Dockerfile.migrations
@@ -305,7 +305,7 @@ services:
     environment: *platform-environment
 
   platform-notification:
-    image: tidepool/platform-notification
+    image: docker.ci.diabeloop.eu/platform-notification
     # build:
     #   context: ${PLATFORM_NOTIFICATION_DIR}
     #   dockerfile: Dockerfile.notification
@@ -318,7 +318,7 @@ services:
     environment: *platform-environment
 
   platform-task:
-    image: tidepool/platform-task
+    image: docker.ci.diabeloop.eu/platform-task
     # build:
     #   context: ${PLATFORM_TASK_DIR}
     #   dockerfile: Dockerfile.task
@@ -331,7 +331,7 @@ services:
     environment: *platform-environment
 
   platform-tools:
-    image: tidepool/platform-tools
+    image: docker.ci.diabeloop.eu/platform-tools
     # build:
     #   context: ${PLATFORM_TOOLS_DIR}
     #   dockerfile: Dockerfile.tools
@@ -342,7 +342,7 @@ services:
     environment: *platform-environment
 
   platform-user:
-    image: tidepool/platform-user
+    image: docker.ci.diabeloop.eu/platform-user
     # build:
     #   context: ${PLATFORM_USER_DIR}
     #   dockerfile: Dockerfile.user
@@ -355,7 +355,7 @@ services:
     environment: *platform-environment
 
   seagull:
-    image: tidepool/seagull
+    image: docker.ci.diabeloop.eu/seagull
     depends_on:
       - hakken
     # build: ${SEAGULL_DIR}
@@ -378,7 +378,7 @@ services:
       USER_API_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${SHORELINE_HOST}:9107"}]}'
 
   shoreline:
-    image: tidepool/shoreline
+    image: docker.ci.diabeloop.eu/shoreline
     depends_on:
       - hakken
     # build:
@@ -429,7 +429,7 @@ services:
         }
 
   styx:
-    image: tidepool/styx
+    image: docker.ci.diabeloop.eu/styx
     depends_on:
       - hakken
     # build: ${STYX_DIR}
@@ -512,7 +512,7 @@ services:
         }
 
   tide-whisperer:
-    image: tidepool/tide-whisperer
+    image: docker.ci.diabeloop.eu/tide-whisperer
     depends_on:
       - hakken
     # build:
@@ -572,7 +572,7 @@ services:
   #     - '8082:8082'
 
   confirm-email:
-    image: mdbl/confirm-email
+    image: docker.ci.diabeloop.eu/confirm-email
     ports:
       - '9508:9508'
     environment:
