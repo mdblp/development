@@ -9,7 +9,7 @@ services:
       - '27017:27017'
 
   blip:
-    image: tidepool/blip
+    image: docker.ci.diabeloop.eu/blip:dblp.0.1.6
     depends_on:
       - hakken
     # build: ${TIDEPOOL_DOCKER_BLIP_DIR}
@@ -33,6 +33,14 @@ services:
       PORT: '3000'
       PUBLISH_HOST: ${TIDEPOOL_DOCKER_HAKKEN_HOST}
       WEBPACK_DEVTOOL: cheap-module-eval-source-map
+      I18N_ENABLED: ${I18N_ENABLED}
+      ALLOW_CHANGE_EMAIL: ${ALLOW_CHANGE_EMAIL}
+      ALLOW_CHANGE_PASSWORD: ${ALLOW_CHANGE_PASSWORD}
+      HIDE_UPLOAD_LINK: ${HIDE_UPLOAD_LINK}
+      HIDE_DEXCOM_BANNER: ${HIDE_DEXCOM_BANNER}
+      HIDE_DONATE: ${HIDE_DONATE}
+      BRANDING: ${BRANDING}
+      SERVICE_NAME: ${SERVICE_NAME}
 
   gatekeeper:
     image: tidepool/gatekeeper
@@ -281,7 +289,7 @@ services:
     environment: *platform-environment
 
   platform-data:
-    image: data:pre-dblp
+    image: docker.ci.diabeloop.eu/mdblp/platform-data:0.1.b
     # build:
     #   context: ${TIDEPOOL_DOCKER_PLATFORM_DATA_DIR}
     #   dockerfile: Dockerfile.data
@@ -571,52 +579,52 @@ services:
   #     - '8081:8081'
   #     - '8082:8082'
 
-  confirm-email:
-    image: mdbl/confirm-email
-    ports:
-      - '9508:9508'
-    environment:
-      PORT: ${CONFIRM_EMAIL_PORT}
-      MONGO_USER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/user'
-      DIABELOOP_SECRET: '${CONFIRM_EMAIL_SECRET}'
-      CRYPTOGRAPHY: ${CONFIRM_EMAIL_CRYPTOGRAPHY}
-      SERVER: ${CONFIRM_EMAIL_HOST}
-
-  mis-api:
-    image: mis-api
-    ports:
-      - '9510:9510'
-    environment:
-      MONGO_USER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/user'
-      MONGO_GATEKEEPER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/gatekeeper'
-      MONGO_PORTAL_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/portal'
-      MONGO_SEAGULL_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/seagull'
-      MONGO_DATA_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/data'
-      MONGO_MIS_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/mis'
-      TIDEPOOL_API_HOST: 'http://${TIDEPOOL_DOCKER_API_HOST}:8009'
-      MDBLP_API_HOST: 'localhost'
-      MDBLP_API_PORT: '9510'
-      MDBLP_API_LOGLEVEL: 'Info'
-      MDBLP_API_LOGFILE: '../mis.log'
-
-  portal-api:
-    image: portal-api
-    ports:
-      - '9507:9507'
-    environment:
-      MONGO_USER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/user'
-      MONGO_GATEKEEPER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/gatekeeper'
-      MONGO_PORTAL_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/portal'
-      MONGO_SEAGULL_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/seagull'
-      MONGO_DATA_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/data'
-      API_HOST: 'http://localhost:8009'
-      GATEKEEPER_SECRET_KEY: '${TIDEPOOL_DOCKER_GATEKEEPER_SECRET}'
-      HOST: 'localhost'
-      PORT: 9507
-      DEFAULT_ADMIN_EMAIL: 'admin@portal.com'
-      DEFAULT_ADMIN_PASSWORD: 'password'
-      DEFAULT_ADMIN_USERID: 'portal-admin'
-      SHORELINE_PASSWORD_SALT: '${TIDEPOOL_DOCKER_SHORELINE_SALT}'
+  # confirm-email:
+  #   image: mdbl/confirm-email
+  #   ports:
+  #     - '9508:9508'
+  #   environment:
+  #     PORT: ${CONFIRM_EMAIL_PORT}
+  #     MONGO_USER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/user'
+  #     DIABELOOP_SECRET: '${CONFIRM_EMAIL_SECRET}'
+  #     CRYPTOGRAPHY: ${CONFIRM_EMAIL_CRYPTOGRAPHY}
+  #     SERVER: ${CONFIRM_EMAIL_HOST}
+  #
+  # mis-api:
+  #   image: mis-api
+  #   ports:
+  #     - '9510:9510'
+  #   environment:
+  #     MONGO_USER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/user'
+  #     MONGO_GATEKEEPER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/gatekeeper'
+  #     MONGO_PORTAL_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/portal'
+  #     MONGO_SEAGULL_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/seagull'
+  #     MONGO_DATA_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/data'
+  #     MONGO_MIS_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/mis'
+  #     TIDEPOOL_API_HOST: 'http://${TIDEPOOL_DOCKER_API_HOST}:8009'
+  #     MDBLP_API_HOST: 'localhost'
+  #     MDBLP_API_PORT: '9510'
+  #     MDBLP_API_LOGLEVEL: 'Info'
+  #     MDBLP_API_LOGFILE: '../mis.log'
+  #
+  # portal-api:
+  #   image: portal-api
+  #   ports:
+  #     - '9507:9507'
+  #   environment:
+  #     MONGO_USER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/user'
+  #     MONGO_GATEKEEPER_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/gatekeeper'
+  #     MONGO_PORTAL_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/portal'
+  #     MONGO_SEAGULL_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/seagull'
+  #     MONGO_DATA_CONNECTION_STRING: 'mongodb://${TIDEPOOL_DOCKER_MONGO_HOST}/data'
+  #     API_HOST: 'http://localhost:8009'
+  #     GATEKEEPER_SECRET_KEY: '${TIDEPOOL_DOCKER_GATEKEEPER_SECRET}'
+  #     HOST: 'localhost'
+  #     PORT: 9507
+  #     DEFAULT_ADMIN_EMAIL: 'admin@portal.com'
+  #     DEFAULT_ADMIN_PASSWORD: 'password'
+  #     DEFAULT_ADMIN_USERID: 'portal-admin'
+  #     SHORELINE_PASSWORD_SALT: '${TIDEPOOL_DOCKER_SHORELINE_SALT}'
 
 volumes:
   mongo:
