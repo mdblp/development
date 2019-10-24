@@ -9,7 +9,7 @@ services:
      - '27017:27017'
 
   blip:
-    image: blip-ddc2
+    image: blip:charite
     depends_on:
       - hakken
     # build:
@@ -124,7 +124,7 @@ services:
       USER_API_SERVICE: '{"type": "static", "hosts": [{"protocol": "http", "host": "${TIDEPOOL_DOCKER_SHORELINE_HOST}:9107"}]}'
 
   hydrophone:
-    image: hydrophone-smtp
+    image: hydrophone:charite
     depends_on:
       - hakken
     # build:
@@ -163,9 +163,10 @@ services:
             "hydrophone": {
                 "assetUrl": "https://s3-us-west-2.amazonaws.com/tidepool-dev-asset",
                 "serverSecret": "${TIDEPOOL_DOCKER_SERVER_SECRET}",
-                "supportUrl": "mailto:toto@titi.de",
+                "supportUrl": "mailto:support@charite.de",
                 "webUrl": "http://${TIDEPOOL_DOCKER_APP_HOST}:${TIDEPOOL_DOCKER_APP_PORT}",
-                "i18nTemplatesPath": "/var/templates"
+                "i18nTemplatesPath": "/var/templates",
+                "AllowPatientResetPassword": true
             },
             "mongo": {
                 "connectionString": "mongodb://personal:password@mongo:27017/confirm?authSource=admin&ssl=false"
@@ -185,11 +186,11 @@ services:
             },
             "notifierType": "smtp",
             "smtpEmail": {
-              "fromAddress": "yourloops@diabeloop.fr",
-              "serverAdress": "smtp.ethereal.email",
+              "fromAddress": "yourEmail@charite.de",
+              "serverAdress": "smtpserver",
               "serverPort": "587",
-              "user": "ron.lehner18@ethereal.email",
-              "password": "1EjphVpyXSsVUyTx4q"
+              "user": "...",
+              "password": "..."
             }
         }
 
