@@ -147,7 +147,7 @@ def provisionServerSecrets ():
 ### Config Maps Start ###
 def provisionConfigMaps ():
   required_configmaps = [
-    'dexcom',
+    # 'dexcom',
   ]
 
   if getNested(config, 'shoreline.configmap.enabled'):
