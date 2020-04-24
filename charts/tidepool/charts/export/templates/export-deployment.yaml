@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
       - env:
-        - name: API_HOST
+        - name: EXPORT_API_HOST
           value: "http://internal.{{.Release.Namespace}}"
         - name: DEBUG_LEVEL
           value: debug
@@ -45,7 +45,7 @@ spec:
             secretKeyRef:
               name: export
               key: SessionEncryptionKey
-        image: "{{ .Values.deployment.image }}"
+        image: "{{ .Values.deployment.image }}:{{ .Values.global.versions.export }}"
         securityContext:
           {{- .Values.podSecurityContext | toYaml | nindent 10 }}
         livenessProbe:
@@ -62,4 +62,6 @@ spec:
       securityContext:
         {{- toYaml .Values.securityContext | nindent 8 }}
       restartPolicy: Always
+      imagePullSecrets:
+      - name: nexuscred
 {{- end }}

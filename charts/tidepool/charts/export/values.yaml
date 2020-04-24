@@ -3,7 +3,8 @@ secret:
   data_:
     SessionEncryptionKey: ""
 deployment:
-  image: tidepool/export:master-latest
+  # image: tidepool/export:master-latest
+  image: docker.ci.diabeloop.eu/export
   replicas: 1
 resources: {}
 podSecurityContext: {}
