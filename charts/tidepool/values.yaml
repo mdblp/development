@@ -30,7 +30,11 @@ global:
     shoreline: 9107                                # shoreline service internal port
     tidewhisperer: 9127                            # tidewhisperer service in 
   versions:
+    highwater: "0.1.4"
+    messageapi: "0.2.0"
     platform: "0.7.1"
+    seagull : "0.3.2"
+    tidewhisperer: "0.5.2"
   secret:
     enabled: false
     generated: false

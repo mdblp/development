@@ -80,7 +80,7 @@ spec:
           value: highwater
         - name: USER_API_SERVICE
           value: '{"type": "static", "hosts": [{"protocol": "http", "host": "shoreline:{{.Values.global.ports.shoreline}}"}]}'
-        image: "{{ .Values.deployment.image }}"
+        image: "{{ .Values.deployment.image }}:{{ .Values.global.versions.highwater }}"
         securityContext:
           {{- .Values.podSecurityContext | toYaml | nindent 10 }}
         livenessProbe:
@@ -97,3 +97,5 @@ spec:
       securityContext:
         {{- toYaml .Values.securityContext | nindent 8 }}
       restartPolicy: Always
+      imagePullSecrets:
+      - name: nexuscred

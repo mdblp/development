@@ -1,5 +1,6 @@
 deployment:
-  image: tidepool/seagull:master-latest
+  # image: tidepool/seagull:master-latest
+  image: docker.ci.diabeloop.eu/seagull
   replicas: 1
 resources: {}
 podSecurityContext: {}

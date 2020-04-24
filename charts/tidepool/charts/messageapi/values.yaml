@@ -1,5 +1,6 @@
 deployment:
-  image: tidepool/message-api:master-latest
+  # image: tidepool/message-api:master-latest
+  image: docker.ci.diabeloop.eu/message-api
   replicas: 1
   env:
     window: 21

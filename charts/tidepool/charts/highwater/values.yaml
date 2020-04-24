@@ -1,5 +1,6 @@
 deployment:
-  image: tidepool/highwater:master-latest
+  # image: tidepool/highwater:master-latest
+  image: docker.ci.diabeloop.eu/highwater
   replicas: 1
 resources: {}
 podSecurityContext: {}
