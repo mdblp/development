@@ -229,15 +229,15 @@ spec:
         upstream:
           name: {{ .Release.Namespace }}-data-{{ $ports.data }}
           namespace: {{ $discoveryNamespace }}
-  - matchers:
-    - methods:
-      - POST
-      prefix: /v1/device/upload/cl
-    routeAction:
-      single:
-        upstream:
-          name: {{ .Release.Namespace }}-jellyfish-{{ $ports.jellyfish }}
-          namespace: {{ $discoveryNamespace }}
+  # - matchers:
+  #   - methods:
+  #     - POST
+  #     prefix: /v1/device/upload/cl
+  #   routeAction:
+  #     single:
+  #       upstream:
+  #         name: {{ .Release.Namespace }}-jellyfish-{{ $ports.jellyfish }}
+  #         namespace: {{ $discoveryNamespace }}
   - matchers:
     - methods:
       - GET
@@ -256,15 +256,15 @@ spec:
         upstream:
           name: {{ .Release.Namespace }}-blip-{{ $ports.blip }}
           namespace: {{ $discoveryNamespace }}
-  - matchers:
-    - methods:
-      - GET
-      prefix: /v1/device/data/
-    routeAction:
-      single:
-        upstream:
-          name: {{ .Release.Namespace }}-jellyfish-{{ $ports.jellyfish }}
-          namespace: {{ $discoveryNamespace }}
+  # - matchers:
+  #   - methods:
+  #     - GET
+  #     prefix: /v1/device/data/
+  #   routeAction:
+  #     single:
+  #       upstream:
+  #         name: {{ .Release.Namespace }}-jellyfish-{{ $ports.jellyfish }}
+  #         namespace: {{ $discoveryNamespace }}
   - matchers:
     - methods:
       - GET
@@ -305,15 +305,15 @@ spec:
         upstream:
           name: {{ .Release.Namespace }}-user-{{ $ports.user }}
           namespace: {{ $discoveryNamespace }}
-  - matchers:
-    - methods:
-      - GET
-      prefix: /v1/synctasks/
-    routeAction:
-      single:
-        upstream:
-          name: {{ .Release.Namespace }}-jellyfish-{{ $ports.jellyfish }}
-          namespace: {{ $discoveryNamespace }}
+  # - matchers:
+  #   - methods:
+  #     - GET
+  #     prefix: /v1/synctasks/
+  #   routeAction:
+  #     single:
+  #       upstream:
+  #         name: {{ .Release.Namespace }}-jellyfish-{{ $ports.jellyfish }}
+  #         namespace: {{ $discoveryNamespace }}
   - matchers:
     - methods:
       - GET
@@ -468,26 +468,26 @@ spec:
         upstream:
           name: {{ .Release.Namespace }}-blip-{{ $ports.blip }}
           namespace: {{ $discoveryNamespace }}
-  - matchers:
-    - methods:
-      - POST
-      prefix: /data/
-    routeAction:
-      single:
-        upstream:
-          name: {{ .Release.Namespace }}-jellyfish-{{ $ports.jellyfish }}
-          namespace: {{ $discoveryNamespace }}
-    options:
-      timeout: "60s"
-  - matchers:
-    - methods:
-      - GET
-      prefix: /info
-    routeAction:
-      single:
-        upstream:
-          name: {{ .Release.Namespace }}-jellyfish-{{ $ports.jellyfish }}
-          namespace: {{ $discoveryNamespace }}
+  # - matchers:
+  #   - methods:
+  #     - POST
+  #     prefix: /data/
+  #   routeAction:
+  #     single:
+  #       upstream:
+  #         name: {{ .Release.Namespace }}-jellyfish-{{ $ports.jellyfish }}
+  #         namespace: {{ $discoveryNamespace }}
+  #   options:
+  #     timeout: "60s"
+  # - matchers:
+  #   - methods:
+  #     - GET
+  #     prefix: /info
+  #   routeAction:
+  #     single:
+  #       upstream:
+  #         name: {{ .Release.Namespace }}-jellyfish-{{ $ports.jellyfish }}
+  #         namespace: {{ $discoveryNamespace }}
   - matchers:
     - methods:
       - GET
