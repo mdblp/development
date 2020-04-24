@@ -59,16 +59,16 @@ Create environment variables used by all platform services.
           value: http://data:{{.Values.global.ports.data}}
         - name: TIDEPOOL_DATA_SOURCE_CLIENT_ADDRESS
           value: http://data:{{.Values.global.ports.data}}
-        - name: TIDEPOOL_DEXCOM_CLIENT_ADDRESS
-          valueFrom:
-            configMapKeyRef:
-              name: dexcom
-              key: ClientURL
-        - name: TIDEPOOL_SERVICE_PROVIDER_DEXCOM_AUTHORIZE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: dexcom
-              key: AuthorizeURL
+        # - name: TIDEPOOL_DEXCOM_CLIENT_ADDRESS
+        #   valueFrom:
+        #     configMapKeyRef:
+        #       name: dexcom
+        #       key: ClientURL
+        # - name: TIDEPOOL_SERVICE_PROVIDER_DEXCOM_AUTHORIZE_URL
+        #   valueFrom:
+        #     configMapKeyRef:
+        #       name: dexcom
+        #       key: AuthorizeURL
         - name: TIDEPOOL_IMAGE_CLIENT_ADDRESS
           value: http://image:{{.Values.global.ports.image}}
         - name: TIDEPOOL_METRIC_CLIENT_ADDRESS
