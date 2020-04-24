@@ -30,6 +30,7 @@ global:
     shoreline: 9107                                # shoreline service internal port
     tidewhisperer: 9127                            # tidewhisperer service in 
   versions:
+    gatekeeper: "0.2.2"
     highwater: "0.1.4"
     hydrophone: "0.8.0"
     messageapi: "0.2.0"
