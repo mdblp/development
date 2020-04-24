@@ -9,7 +9,8 @@ configmap:
     AppleDeviceCheckKeyId: "B542R658GF"
     AppleDeviceCheckUseDevelopment: "true"
 deployment:
-  image: tidepool/platform-auth:master-latest
+  # image: tidepool/platform-auth:master-latest
+  image: docker.ci.diabeloop.eu/mdblp/platform-auth
   replicas: 1
 resources: {}
 podSecurityContext: {}

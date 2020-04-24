@@ -230,6 +230,13 @@ tidepool server-set-config
 
 This will save the Kubernetes server config to `~/.kube/config`. This is only required after the initial server start provisioning.
 
+### Create kubernetes secrets for nexus 
+In order to pull docker images from our private nexus repository, we need to configure our access in the kubernetes cluster. 
+
+If access is already configured, this command will create the _nexuscred_ secret from the local docker config file :  
+```bash
+ kubectl create secret generic nexuscred --from-file=.dockerconfigjson="$HOME/.docker/config.json" --type=kubernetes.io/dockerconfigjson
+```
 ### Start the tidepool services
 
 ```bash

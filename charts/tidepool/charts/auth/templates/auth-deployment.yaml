@@ -114,7 +114,7 @@ spec:
               name: auth
               key: AppleDeviceCheckUseDevelopment
               optional: true
-        image: "{{ .Values.deployment.image }}"
+        image: "{{ .Values.deployment.image }}:{{ .Values.global.versions.platform }}"
         securityContext:
           {{- .Values.podSecurityContext | toYaml | nindent 10 }}
         {{ template "charts.platform.probes" .Values.global.ports.auth}}
@@ -126,3 +126,5 @@ spec:
       securityContext:
         {{- toYaml .Values.securityContext | nindent 8 }}
       restartPolicy: Always
+      imagePullSecrets:
+      - name: nexuscred
