@@ -30,6 +30,7 @@ global:
     shoreline: 9107                                # shoreline service internal port
     tidewhisperer: 9127                            # tidewhisperer service in 
   versions:
+    blip: "0.14.1"
     export: "1.4.2"
     gatekeeper: "0.2.2"
     highwater: "0.1.4"

@@ -31,7 +31,7 @@ spec:
 {{- end }}
     spec:
       containers:
-      - image: "{{ .Values.deployment.image }}"
+      - image: "{{ .Values.deployment.image }}:{{ .Values.global.versions.blip }}"
         securityContext:
           {{- .Values.podSecurityContext | toYaml | nindent 10 }}
 {{ if .Values.command }}
@@ -42,6 +42,32 @@ spec:
 {{- end }}
         env:
         - name: SKIP_HAKKEN
+          value: "true"
+        - name: BRANDING
+          value: "diabeloop"
+        - name: PASSWORD_MIN_LENGTH
+          value: "10"
+        - name: PASSWORD_MAX_LENGTH
+          value: "72"
+        - name: HELP_LINK
+          value: "https://static.zdassets.com/ekr/snippet.js?key=d2da97fd-9e77-4cf0-8d12-4c7412e40471"
+        - name: ASSETS_URL
+          value: "https://s3-eu-west-1.amazonaws.com/com.diabeloop.public-assets/"
+        - name: I18N_ENABLED
+          value: "true"
+        - name: ALLOW_SIGNUP_PATIENT
+          value: "false"
+        - name: ALLOW_PATIENT_CHANGE_EMAIL
+          value: "false"
+        - name: ALLOW_PATIENT_CHANGE_PASSWORD
+          value: "false"
+        - name: ALLOW_CHANGE_LANG
+          value: "false"
+        - name: HIDE_DONATE
+          value: "true"
+        - name: HIDE_DEXCOM_BANNER
+          value: "true"
+        - name: HIDE_UPLOAD_LINK
           value: "true"
 {{ if .Values.webpackPublicPath }}
         - name: WEBPACK_PUBLIC_PATH
@@ -74,3 +100,5 @@ spec:
       securityContext:
         {{- toYaml .Values.securityContext | nindent 8 }}
       restartPolicy: Always
+      imagePullSecrets:
+      - name: nexuscred

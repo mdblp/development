@@ -1,6 +1,7 @@
 deployment:
   podAnnotations: {}
-  image: tidepool/blip:master-latest
+  # image: tidepool/blip:master-latest
+  image: docker.ci.diabeloop.eu/blip
   replicas: 1
 resources: {}
 podSecurityContext: {}
