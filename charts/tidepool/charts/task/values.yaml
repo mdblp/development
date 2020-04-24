@@ -3,7 +3,8 @@ secret:
   data_:
     ServiceAuth: ""
 deployment:
-  image: tidepool/platform-task:master-latest
+  # image: tidepool/platform-task:master-latest
+  image: docker.ci.diabeloop.eu/mdblp/platform-task
   replicas: 1
   env:
     queue:

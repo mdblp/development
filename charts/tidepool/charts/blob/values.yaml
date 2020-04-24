@@ -4,7 +4,8 @@ secret:
     ServiceAuth: ""
 deployment:
   replicas: 1
-  image: tidepool/platform-blob:master-latest
+  # image: tidepool/platform-blob:master-latest
+  image: docker.ci.diabeloop.eu/mdblp/platform-blob
   env:
     store:
       s3:

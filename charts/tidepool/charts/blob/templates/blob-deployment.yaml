@@ -58,7 +58,7 @@ spec:
           value: '{{.Values.deployment.env.store.s3.prefix}}'
         - name: TIDEPOOL_BLOB_SERVICE_UNSTRUCTURED_STORE_TYPE
           value: '{{.Values.deployment.env.store.type}}'
-        image: "{{ .Values.deployment.image }}"
+        image: "{{ .Values.deployment.image }}:{{ .Values.global.versions.platform }}"
         securityContext:
           {{- .Values.podSecurityContext | toYaml | nindent 10 }}
         {{ template "charts.platform.probes" .Values.global.ports.blob}}
@@ -68,3 +68,5 @@ spec:
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
       restartPolicy: Always
+      imagePullSecrets:
+      - name: nexuscred

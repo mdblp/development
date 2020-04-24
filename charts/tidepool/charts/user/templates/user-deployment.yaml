@@ -67,7 +67,7 @@ spec:
           value: user
         - name: TIDEPOOL_CONFIRMATION_STORE_DATABASE
           value: confirm
-        image: "{{ .Values.deployment.image }}"
+        image: "{{ .Values.deployment.image }}:{{ .Values.global.versions.platform }}"
         securityContext:
           {{- .Values.podSecurityContext | toYaml | nindent 10 }}
         {{ template "charts.platform.probes" .Values.global.ports.user }}
@@ -79,3 +79,5 @@ spec:
       securityContext:
         {{- toYaml .Values.securityContext | nindent 8 }}
       restartPolicy: Always
+      imagePullSecrets:
+      - name: nexuscred
