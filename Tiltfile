@@ -5,8 +5,7 @@ tidepool_helm_overrides_file = getHelmOverridesFile()
 config = getConfig()
 watch_file(tidepool_helm_overrides_file)
 
-tidepool_helm_charts_version = config.get('tidepool_helm_charts_version')
-tidepool_helm_chart_dir = "./charts/tidepool/{}".format(tidepool_helm_charts_version)
+tidepool_helm_chart_dir = "./charts/tidepool"
 
 is_shutdown = isShutdown()
 ### Config End ###
@@ -15,7 +14,7 @@ is_shutdown = isShutdown()
 def main():
 
   # Set up tidepool helm template command
-  tidepool_helm_template_cmd = 'helm template --name tilt-tidepool --namespace default '
+  tidepool_helm_template_cmd = 'helm template --namespace default '
 
   gateway_port_forwards = getNested(config,'gateway-proxy-v2.portForwards', ['3000'])
   gateway_port_forward_host_port = gateway_port_forwards[0].split(':')[0]
@@ -32,20 +31,17 @@ def main():
     if not getNested(config, 'mongodb.useExternal'):
       mongodb_service = local('kubectl get service mongodb --ignore-not-found')
       if not mongodb_service:
-        local('tilt up --file=Tiltfile.mongodb --hud=0 --port=0 &>/dev/null &')
+        local('tilt up --file=Tiltfile.mongodb --hud=0 --port=0 >/dev/null 2>&1 &')
 
     # Ensure proxy services are deployed
-    gateway_proxy_service = local('kubectl get service gateway-proxy-v2 --ignore-not-found')
+    gateway_proxy_service = local('kubectl get service gateway-proxy --ignore-not-found')
     if not gateway_proxy_service:
-      local('tilt up --file=Tiltfile.gateway --hud=0 --port=0 &>/dev/null &')
+      local('tilt up --file=Tiltfile.gateway --hud=0 --port=0 >/dev/null 2>&1 &')
 
     # Wait until mongodb and gateway proxy services are forwarding before provisioning rest of stack
     if not getNested(config, 'mongodb.useExternal'):
       print("Preparing mongodb service...")
       local('while ! nc -z localhost {}; do sleep 1; done'.format(mongodb_port_forward_host_port))
-
-    print("Preparing gateway services...")
-    local('while ! nc -z localhost {}; do sleep 1; done'.format(gateway_port_forward_host_port))
 
   else:
     # Shut down the mongodb and gateway services
@@ -104,7 +100,6 @@ def provisionServerSecrets ():
     'export',
     'image',
     'kissmetrics',
-    'mailchimp',
     'marketo',
     'mongo',
     'notification',
@@ -117,12 +112,10 @@ def provisionServerSecrets ():
 
   secretHelmKeyMap = {
     'kissmetrics': 'global.secret.templated',
-    'mailchimp': 'global.secret.templated',
   }
 
   secretChartPathMap = {
     'kissmetrics': 'highwater/charts/kissmetrics/templates/kissmetrics-secret.yaml',
-    'mailchimp': 'shoreline/charts/mailchimp/templates/mailchimp-secret.yaml',
   }
 
   # Skip secrets already available on cluster
@@ -136,15 +129,14 @@ def provisionServerSecrets ():
       secret=secret,
     ))
 
-    templatePath = '{chartDir}/charts/{secretChartPath}'.format(
-      chartDir=getAbsoluteDir(tidepool_helm_chart_dir),
+    templatePath = 'charts/{secretChartPath}'.format(
       secretChartPath=secretChartPath,
     )
 
     secretKey = secretHelmKeyMap.get(secret, '{}.secret.enabled'.format(secret))
 
     # Generate the secret and apply it to the cluster
-    local('helm template --namespace default --set "{secretKey}=true" -x {templatePath} -f {overrides} {chartDir} | kubectl --namespace=default apply --validate=0 --force -f -'.format(
+    local('helm template {chartDir} --namespace default --set "{secretKey}=true" -s {templatePath} -f {overrides} -g | kubectl --namespace=default apply --validate=0 --force -f -'.format(
       chartDir=getAbsoluteDir(tidepool_helm_chart_dir),
       templatePath=templatePath,
       secretKey=secretKey,
@@ -172,13 +164,12 @@ def provisionConfigMaps ():
       configmap=configmap,
     )
 
-    templatePath = '{chartDir}/charts/{configmapChartPath}'.format(
-      chartDir=getAbsoluteDir(tidepool_helm_chart_dir),
+    templatePath = 'charts/{configmapChartPath}'.format(
       configmapChartPath=configmapChartPath,
     )
 
     # Generate the configmap and apply it to the cluster
-    local('helm template --namespace default -x {templatePath} -f {overrides} {chartDir} | kubectl --namespace=default apply --validate=0 --force -f -'.format(
+    local('helm template {chartDir} --namespace default -s {templatePath} -f {overrides} -g | kubectl --namespace=default apply --validate=0 --force -f -'.format(
       chartDir=getAbsoluteDir(tidepool_helm_chart_dir),
       overrides=tidepool_helm_overrides_file,
       templatePath=templatePath
