@@ -1,5 +1,6 @@
 deployment:
-  image: tidepool/hydrophone:master-latest
+  # image: tidepool/hydrophone:master-latest
+  image: docker.ci.diabeloop.eu/hydrophone
   replicas: 1
   env:
     fromAddress: "Tidepool <noreply@tidepool.org>"                      # from address for emails that we send

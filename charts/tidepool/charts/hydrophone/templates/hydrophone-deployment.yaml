@@ -84,10 +84,11 @@ spec:
             {
                 "hydrophone": {
                     "assetUrl": {{- include "charts.hydrophone.s3.url" . | quote }},
-                    "webUrl": {{- include "charts.host.external.tp" . | quote }}
+                    "webUrl": {{- include "charts.host.external.tp" . | quote }},
+                    "i18nTemplatesPath": "/home/tidepool/templates"
                 },
                 "mongo": {
-                    "connectionString": ""
+                    "connectionString": "mongodb://$(TIDEPOOL_STORE_ADDRESSES)/$(TIDEPOOL_STORE_DATABASE)"
                 },
                 "service": {
                     "host": "localhost:{{.Values.global.ports.hydrophone}}",
@@ -98,7 +99,7 @@ spec:
                     "fromAddress": "{{.Values.deployment.env.fromAddress}}"
                 }
             }
-        image: "{{ .Values.deployment.image }}"
+        image: "{{ .Values.deployment.image }}:{{ .Values.global.versions.hydrophone }}"
         securityContext:
           {{- .Values.podSecurityContext | toYaml | nindent 10 }}
         livenessProbe:
@@ -115,3 +116,5 @@ spec:
       securityContext:
         {{- toYaml .Values.securityContext | nindent 8 }}
       restartPolicy: Always
+      imagePullSecrets:
+      - name: nexuscred

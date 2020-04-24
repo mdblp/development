@@ -31,6 +31,7 @@ global:
     tidewhisperer: 9127                            # tidewhisperer service in 
   versions:
     highwater: "0.1.4"
+    hydrophone: "0.8.0"
     messageapi: "0.2.0"
     platform: "0.7.1"
     seagull : "0.3.2"
