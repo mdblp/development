@@ -10,7 +10,8 @@ secret:
     UserMailVerification: ""
     ClinicDemoUserId: ""
 deployment:
-  image: tidepool/shoreline:master-latest
+  # image: tidepool/shoreline:master-latest
+  image: docker.ci.diabeloop.eu/shoreline
   replicas: 1
 resources: {}
 podSecurityContext: {}

@@ -34,6 +34,7 @@ global:
     messageapi: "0.2.0"
     platform: "0.7.1"
     seagull : "0.3.2"
+    shoreline: "0.5.2"
     tidewhisperer: "0.5.2"
   secret:
     enabled: false
