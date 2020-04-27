@@ -15,7 +15,7 @@ global:
     blip: 3000                                     # blip service internal port
     export: 9300                                   # export service internal port
     gatekeeper: 9123                               # gatekeeper service internal port
-    # healthcheck: 9180                              # healthcheck service internal port
+    healthcheck: 9180                              # healthcheck service internal port
     highwater: 9191                                # highwater service internal port
     hydrophone: 9157                               # hydrophone service internal port
     messageapi: 9119                               # messageapi service internal port
@@ -43,7 +43,7 @@ global:
     tidewhisperer: "0.5.2"
     # YourLoops services
     # confirmemail: "1.0.3"
-    # healthcheck: "1.2.0"
+    healthcheck: "1.2.0"
     # lighthouse: "1.4.3"
     # octopus: "1.2.1"
     portalapi: "0.11.0"

@@ -1,0 +1,18 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: healthcheck
+{{ include "charts.labels.standard" .}}
+  name: healthcheck
+  namespace: {{.Release.Namespace}}
+spec:
+  ports:
+  - name: "http"
+    port: {{.Values.global.ports.healthcheck}}
+    targetPort: {{.Values.global.ports.healthcheck}}
+  selector:
+    app: healthcheck
+    app.kubernetes.io/name: {{ include "charts.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

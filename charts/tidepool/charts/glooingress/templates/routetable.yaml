@@ -649,9 +649,22 @@ spec:
   - matchers:
     - methods:
       - GET
+      prefix: /health-check/
+    routeAction:
+      single:
+        upstream:
+          name: {{ .Release.Namespace }}-healthcheck-{{ $ports.healthcheck }}
+          namespace: {{ $discoveryNamespace }}
+    options:
+      prefixRewrite: /
+      timeout: '30s'
+  - matchers:
+    - methods:
+      - GET
       prefix: /
     routeAction:
       single:
         upstream:
           name: {{ .Release.Namespace }}-blip-{{ $ports.blip }}
           namespace: {{ $discoveryNamespace }}
+

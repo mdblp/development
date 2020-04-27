@@ -1,0 +1,81 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: healthcheck
+{{ include "charts.labels.standard" .}}
+  name: healthcheck
+  namespace: {{.Release.Namespace}}
+  annotations:
+    secret.reloader.stakater.com/reload: "server,userdata"
+{{ if .Values.deployment.annotations }}
+    {{- .Values.deployment.annotations | toYaml | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    matchLabels:
+      app: healthcheck
+      app.kubernetes.io/name: {{ include "charts.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  replicas: {{ .Values.deployment.replicas }}
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: healthcheck
+        app.kubernetes.io/name: {{ include "charts.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+{{ if .Values.podAnnotations }}
+      annotations:
+        {{- .Values.podAnnotations | toYaml | nindent 8 }}
+{{- end }}
+    spec:
+      containers:
+      - env:
+        - name: SERVICE_PORT
+          value: "{{.Values.global.ports.healthcheck}}"
+        - name: PING_TIMEOUT
+          value: "5000"
+        - name: MONITORED_URLS
+          value: |
+            [
+              {"name": "gatekeeper", "url":"http://gatekeeper:{{ .Values.global.ports.gatekeeper }}/status"},
+              {"name": "highwater", "url":"http://highwater:{{ .Values.global.ports.highwater }}/status"},
+              {"name": "hydrophone", "url":"http://hydrophone:{{ .Values.global.ports.hydrophone }}/status"},
+              {"name": "message-api", "url":"http://message-api:{{ .Values.global.ports.messageapi }}/status"},
+              {"name": "platform auth", "url":"http://auth:{{ .Values.global.ports.auth }}/status"},
+              {"name": "platform user", "url":"http://user:{{ .Values.global.ports.user }}/status"},
+              {"name": "platform data", "url":"http://data:{{ .Values.global.ports.data }}/status"},
+              {"name": "platform notification", "url":"http://notification:{{ .Values.global.ports.notification }}/status"},
+              {"name": "platform task", "url":"http://task:{{ .Values.global.ports.task }}/status"},
+              {"name": "platform blob", "url":"http://blob:{{ .Values.global.ports.blob }}/status"},
+              {"name": "platform image", "url":"http://image:{{ .Values.global.ports.image }}/status"},
+              {"name": "seagull", "url":"http://seagull:{{ .Values.global.ports.seagull }}/status"},
+              {"name": "shoreline", "url":"http://shoreline:{{ .Values.global.ports.shoreline }}/status"},
+              {"name": "tide-whisperer", "url":"http://tide-whisperer:{{ .Values.global.ports.tidewhisperer }}/status"},
+              {"name": "portal-api", "url":"http://portalapi:{{ .Values.global.ports.portalapi }}/status"}
+            ]
+# {"name": "confirm-email", "url":"http://confirm-email:{{ .Values.global.ports.confirmemail }}/status"},
+# {"name": "lighthouse", "url":"http://lighthouse:{{ .Values.global.ports.lighthouse }}/status"},
+# {"name": "octopus", "url":"http://octopus:{{ .Values.global.ports.octopus }}/status"}
+        - name: YLP_VERSION 
+          value: "0.0.1"
+        image: "{{ .Values.deployment.image }}:{{ .Values.global.versions.healthcheck }}"
+        securityContext:
+          {{- .Values.podSecurityContext | toYaml | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: {{.Values.global.ports.healthcheck}}
+          initialDelaySeconds: 3
+          periodSeconds: 10
+        name: healthcheck
+        ports:
+        - containerPort: {{.Values.global.ports.healthcheck}}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: nexuscred
