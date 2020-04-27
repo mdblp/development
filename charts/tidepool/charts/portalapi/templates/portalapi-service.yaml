@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: portalapi
+{{ include "charts.labels.standard" .}}
+  name: portalapi
+  namespace: {{.Release.Namespace}}
+spec:
+  ports:
+  - name: "http"
+    port: {{.Values.global.ports.portalapi}}
+    targetPort: {{.Values.global.ports.portalapi}}
+  selector:
+    app: portalapi
+    app.kubernetes.io/name: {{ include "charts.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+status:
+  loadBalancer: {}

@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: portalapi
+{{ include "charts.labels.standard" .}}
+  name: portalapi
+  namespace: {{.Release.Namespace}}
+  annotations:
+    secret.reloader.stakater.com/reload: "server,userdata"
+{{ if .Values.deployment.annotations }}
+    {{- .Values.deployment.annotations | toYaml | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    matchLabels:
+      app: portalapi
+      app.kubernetes.io/name: {{ include "charts.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  replicas: {{ .Values.deployment.replicas }}
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: portalapi
+        app.kubernetes.io/name: {{ include "charts.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+{{ if .Values.podAnnotations }}
+      annotations:
+        {{- .Values.podAnnotations | toYaml | nindent 8 }}
+{{- end }}
+    spec:
+      initContainers:
+      {{ include "charts.init.shoreline" .}}
+      containers:
+      - env:
+        {{ include "charts.mongo.params" .}}
+        - name: TIDEPOOL_STORE_DATABASE
+          value: portal
+        - name: MONGO_PORTAL_CONNECTION_STRING
+          value: "mongodb://$(TIDEPOOL_STORE_ADDRESSES)/$(TIDEPOOL_STORE_DATABASE)"
+        - name: TIDEPOOL_API_HOST
+          value: "http://internal.{{.Release.Namespace}}"
+        - name: SERVER_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: server
+              key: ServiceAuth
+        - name: MDBLP_PORTAL_API_PORT
+          value: "{{.Values.global.ports.portalapi}}"
+        - name: MDBLP_API_HOST
+          value: "0.0.0.0"
+        - name: MDBLP_API_LOGLEVEL
+          value: "Trace"
+        - name: MDBLP_PORTAL_API_LOGFILE
+          value: "portal.log"
+        - name: MDBLP_SERVER_TOKEN_TIMEOUT
+          value: "82800"
+        - name: MDBLP_PORTAL_DEFAULT_ORGANIZATION
+          value: "Diabeloop"
+        - name: PORTAL_HOST
+          value: "portalapi"
+        - name: MDBLP_PORTAL_ADMIN_USERNAME
+          value: "portal.admin@diabeloop.fr"
+        - name: MDBLP_PORTAL_ADMIN_PASSWORD
+          value: "password"
+        - name: MDBLP_PORTAL_DB_RECONNECTION_RETRIES
+          value: "100"
+        - name: MDBLP_PORTAL_DB_RECONNECTION_INTERVAL
+          value: "700"
+        image: "{{ .Values.deployment.image }}:{{ .Values.global.versions.portalapi }}"
+        securityContext:
+          {{- .Values.podSecurityContext | toYaml | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: {{.Values.global.ports.portalapi}}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        name: portalapi
+        ports:
+        - containerPort: {{.Values.global.ports.portalapi}}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: nexuscred

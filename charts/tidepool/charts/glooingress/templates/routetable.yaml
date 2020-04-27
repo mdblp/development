@@ -617,6 +617,35 @@ spec:
     options:
       prefixRewrite: /
       timeout: "60s"
+  ## This route is configured in styx... But doesn't point to a valid endpoint...
+  # - matchers:
+  #   - methods:
+  #     - GET
+  #     - POST
+  #     - PUT
+  #     - DELETE
+  #     prefix: /api
+  #   routeAction:
+  #     single:
+  #       upstream:
+  #         name: {{ .Release.Namespace }}-portalapi-{{ $ports.portalapi }}
+  #         namespace: {{ $discoveryNamespace }}
+    options:
+      timeout: '30s'
+  - matchers:
+    - methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      prefix: /organization
+    routeAction:
+      single:
+        upstream:
+          name: {{ .Release.Namespace }}-portalapi-{{ $ports.portalapi }}
+          namespace: {{ $discoveryNamespace }}
+    options:
+      timeout: '30s'
   - matchers:
     - methods:
       - GET
