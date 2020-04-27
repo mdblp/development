@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: confirmemail
+{{ include "charts.labels.standard" .}}
+  name: confirmemail
+  namespace: {{.Release.Namespace}}
+spec:
+  ports:
+  - name: "http"
+    port: {{.Values.global.ports.confirmemail}}
+    targetPort: {{.Values.global.ports.confirmemail}}
+  selector:
+    app: confirmemail
+    app.kubernetes.io/name: {{ include "charts.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+status:
+  loadBalancer: {}

@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: confirmemail
+{{ include "charts.labels.standard" .}}
+  name: confirmemail
+  namespace: {{.Release.Namespace}}
+  annotations:
+    secret.reloader.stakater.com/reload: "server,userdata"
+{{ if .Values.deployment.annotations }}
+    {{- .Values.deployment.annotations | toYaml | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    matchLabels:
+      app: confirmemail
+      app.kubernetes.io/name: {{ include "charts.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  replicas: {{ .Values.deployment.replicas }}
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: confirmemail
+        app.kubernetes.io/name: {{ include "charts.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+{{ if .Values.podAnnotations }}
+      annotations:
+        {{- .Values.podAnnotations | toYaml | nindent 8 }}
+{{- end }}
+    spec:
+      initContainers:
+      {{ include "charts.init.shoreline" .}}
+      containers:
+      - env:
+        - name: TIDEPOOL_API_HOST
+          value: "http://internal.{{.Release.Namespace}}"
+        - name: SERVER_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: server
+              key: ServiceAuth
+        - name: MDBLP_API_HOST
+          value: "0.0.0.0"
+        - name: MDBLP_API_LOGLEVEL
+          value: "Trace"
+        - name: MDBLP_CONFIRMEMAIL_CRYPTKEYS
+          value: |
+            {
+              "none":"unencrypted key",
+              "hash":"hashed key" ,
+              "aes256":"aes256 encrypted key",
+              "message":"Could you please validate the account for <EMAIL>"
+            }
+        image: "{{ .Values.deployment.image }}:{{ .Values.global.versions.confirmemail }}"
+        securityContext:
+          {{- .Values.podSecurityContext | toYaml | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: {{.Values.global.ports.confirmemail}}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        name: confirmemail
+        ports:
+        - containerPort: {{.Values.global.ports.confirmemail}}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: nexuscred

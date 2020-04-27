@@ -661,6 +661,20 @@ spec:
   - matchers:
     - methods:
       - GET
+      - POST
+      - PUT
+      - DELETE
+      prefix: /autoconf
+    routeAction:
+      single:
+        upstream:
+          name: {{ .Release.Namespace }}-confirmemail-{{ $ports.confirmemail }}
+          namespace: {{ $discoveryNamespace }}
+    options:
+      timeout: '30s'  
+  - matchers:
+    - methods:
+      - GET
       prefix: /portal/
     routeAction:
       single:

@@ -13,6 +13,7 @@ global:
       namespace: gloo-system
   ports:
     blip: 3000                                     # blip service internal port
+    confirmemail: 9508                             # confirmemail service internal port
     export: 9300                                   # export service internal port
     gatekeeper: 9123                               # gatekeeper service internal port
     healthcheck: 9180                              # healthcheck service internal port
@@ -43,7 +44,7 @@ global:
     shoreline: "0.5.2"
     tidewhisperer: "0.5.2"
     # YourLoops services
-    # confirmemail: "1.0.3"
+    confirmemail: "1.0.3"
     healthcheck: "1.2.0"
     # lighthouse: "1.4.3"
     # octopus: "1.2.1"
