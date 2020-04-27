@@ -1,0 +1,57 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: portalfront
+{{ include "charts.labels.standard" .}}
+  name: portalfront
+  namespace: {{.Release.Namespace}}
+  annotations:
+{{ if .Values.deployment.annotations }}
+    {{- .Values.deployment.annotations | toYaml | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    matchLabels:
+      app: portalfront
+      app.kubernetes.io/name: {{ include "charts.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  replicas: {{ .Values.deployment.replicas }}
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: portalfront
+        app.kubernetes.io/name: {{ include "charts.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+{{ if .Values.podAnnotations }}
+      annotations:
+        {{- .Values.podAnnotations | toYaml | nindent 8 }}
+{{- end }}
+    spec:
+      containers:
+      - image: "{{ .Values.deployment.image }}:{{ .Values.global.versions.portalfront }}"
+        securityContext:
+          {{- .Values.podSecurityContext | toYaml | nindent 10 }}
+        env:
+{{ if .Values.apiHost }}
+        - name: API_HOST
+          value: {{ .Values.apiHost }}
+        - name: PORTAL_API_HOST
+          value: {{ .Values.apiHost }}
+{{- end }}
+{{ if .Values.blipWebUrl }}
+        - name: BLIP_URL
+          value: {{ .Values.blipWebUrl }}
+{{- end }}
+        name: portalfront
+        ports:
+        - containerPort: {{.Values.global.ports.portalfront}}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: nexuscred

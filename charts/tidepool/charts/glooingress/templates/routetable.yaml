@@ -661,6 +661,15 @@ spec:
   - matchers:
     - methods:
       - GET
+      prefix: /portal/
+    routeAction:
+      single:
+        upstream:
+          name: {{ .Release.Namespace }}-portalfront-{{ $ports.portalfront }}
+          namespace: {{ $discoveryNamespace }}
+  - matchers:
+    - methods:
+      - GET
       prefix: /
     routeAction:
       single:

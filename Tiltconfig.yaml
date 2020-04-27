@@ -257,3 +257,7 @@ user:
   dockerFile: 'Dockerfile.user'
   rebuildCommand: 'make service-build'
 ### Tidepool Services Config End ###
+
+portalfront:
+  apiHost: 'http://localhost:3000'
+  blipWebUrl: 'http://localhost:3000'

@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: portalfront
+{{ include "charts.labels.standard" .}}
+  name: portalfront
+  namespace: {{.Release.Namespace}}
+spec:
+  ports:
+  - name: "http"
+    port: {{.Values.global.ports.portalfront}}
+    targetPort: {{.Values.global.ports.portalfront}}
+  selector:
+    app: portalfront
+    app.kubernetes.io/name: {{ include "charts.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+status:
+  loadBalancer: {}

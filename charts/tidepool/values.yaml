@@ -25,6 +25,7 @@ global:
     image: 9226                                    # image service internal port
     notification: 9223                             # notification service internal port
     portalapi: 9507                                # portalapi service internal port
+    portalfront: 3508                              # portalfront service internal port
     task: 9224                                     # task service internal port
     user: 9221                                     # user service internal port
     seagull: 9120                                  # seagull service internal port
@@ -47,7 +48,7 @@ global:
     # lighthouse: "1.4.3"
     # octopus: "1.2.1"
     portalapi: "0.11.0"
-    # portalfront: "0.4.0"
+    portalfront: "0.4.0"
   secret:
     enabled: false
     generated: false
